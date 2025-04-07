@@ -64,6 +64,6 @@ if uploaded_file is not None:
 # Footer
 st.markdown("""<hr style="margin-top:50px;">
     <p style="text-align:center; font-size:14px;">
-        Built with ❤️ by <b>Your Name</b> | Powered by LSTM & Streamlit
+        Built with ❤️ by <b>Kashish Seth</b> | Powered by LSTM & Streamlit
     </p>
 """, unsafe_allow_html=True)
