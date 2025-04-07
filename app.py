@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 # Load the trained model
 @st.cache_resource
 def load_trained_model():
-    return load_model("seizure_model.h5")
+    return load_model("seizure_model(1).h5")
 
 model = load_trained_model()
 
