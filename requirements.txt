@@ -3,3 +3,4 @@ pandas
 numpy
 tensorflow
 h5py
+matplotlib
