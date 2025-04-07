@@ -1,5 +1,5 @@
 streamlit
-tensorflow
-numpy
 pandas
-scikit-learn
+numpy
+tensorflow
+h5py
