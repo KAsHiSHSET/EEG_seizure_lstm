@@ -14,7 +14,7 @@ import io
 @st.cache_resource
 def load_trained_model():
     # Use the correctly named model file on GitHub, e.g., "seizure_model.h5"
-    return load_model("seizure_model.h5")
+    return load_model("seizure_model (1).h5")
 
 model = load_trained_model()
 
