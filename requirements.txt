@@ -1,6 +1,7 @@
 streamlit
+tensorflow
 pandas
 numpy
-tensorflow
-h5py
 matplotlib
+transformers
+PyPDF2
