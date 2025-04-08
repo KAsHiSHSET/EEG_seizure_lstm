@@ -3,128 +3,102 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model
-from transformers import pipeline
-import PyPDF2
-import io
 
-# ---------------------------
-# SECTION 1: LOAD EEG SEIZURE DETECTION MODEL & DEFINE UI
-# ---------------------------
+# Initialize dark mode state
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = False
 
+# Toggle button
+st.sidebar.title("🌓 Theme")
+if st.sidebar.button("Toggle Dark Mode"):
+    st.session_state.dark_mode = not st.session_state.dark_mode
+
+# Apply theme colors
+if st.session_state.dark_mode:
+    bg_color = "#121212"
+    font_color = "#FFFFFF"
+    chart_colors = ["#888", "#FF5C5C"]
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {bg_color};
+            color: {font_color};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    bg_color = "#FFFFFF"
+    font_color = "#000000"
+    chart_colors = ["#6c757d", "#FF4B4B"]
+
+# Load model
 @st.cache_resource
 def load_trained_model():
-    # Use the correctly named model file on GitHub, e.g., "seizure_model.h5"
-    return load_model("seizure_model (1).h5")
+    return load_model("seizure_model.h5")  # Ensure this file exists
 
 model = load_trained_model()
 
-# Main App Title and Description
-st.markdown("""
-    <h1 style='text-align: center; color: #FF4B4B;'>🧠 EEG Seizure Detection App</h1>
-    <p style='text-align: center; font-size:18px;'>
+# App title and description
+st.markdown(f"""
+    <h1 style='text-align: center; color: #FF4B4B;'>
+        🧠 EEG Seizure Detection App
+    </h1>
+    <p style='text-align: center; font-size:18px; color: {font_color};'>
         Upload EEG data (178 features per row) to detect seizures using an LSTM model.
     </p>
 """, unsafe_allow_html=True)
 
-# File uploader for EEG data
+# Upload section
 st.markdown("### 📂 Upload EEG CSV File")
 uploaded_file = st.file_uploader("Drag and drop or browse your EEG CSV file", type="csv")
 
-# Process EEG file and make predictions
+# Prediction logic
 if uploaded_file is not None:
-    st.success("✅ EEG file uploaded successfully!")
+    st.success("✅ File uploaded successfully!")
+
     try:
         data = pd.read_csv(uploaded_file)
+
         if data.shape[1] != 178:
-            st.error(f"❌ Invalid file: Expected 178 features per row, but got {data.shape[1]}.")
+            st.error(f"❌ Invalid file format. Expected 178 features per row, but got {data.shape[1]}")
         else:
-            # Reshape data for LSTM input
-            X_input = data.values.reshape(data.shape[0], data.shape[1], 1)
-            predictions = model.predict(X_input)
+            predictions = model.predict(data)
             predicted_classes = (predictions > 0.5).astype("int32").flatten()
-            prediction_df = pd.DataFrame({"Seizure_Predicted": predicted_classes})
-            
-            st.markdown("### 🧾 EEG Prediction Results")
+
+            prediction_df = pd.DataFrame({
+                "Seizure_Predicted": predicted_classes
+            })
+
+            st.markdown("### 🧾 Prediction Results")
             st.dataframe(prediction_df.style.highlight_max(axis=0, color='lightcoral'), height=300)
-            
-            # Bar Chart Summary
+
+            # Plotting summary
             st.markdown("### 📊 Seizure Count Summary")
             counts = prediction_df["Seizure_Predicted"].value_counts().sort_index()
             labels = ["No Seizure", "Seizure"]
+
             fig, ax = plt.subplots()
-            ax.bar(labels, counts, color=["#6c757d", "#FF4B4B"])
-            ax.set_ylabel("Count")
-            ax.set_title("Seizure Prediction Summary")
+            ax.bar(labels, counts, color=chart_colors)
+            ax.set_ylabel("Count", color=font_color)
+            ax.set_title("Seizure Prediction Summary", color=font_color)
+            ax.tick_params(axis='x', colors=font_color)
+            ax.tick_params(axis='y', colors=font_color)
+            fig.patch.set_facecolor(bg_color)
+            ax.set_facecolor(bg_color)
             st.pyplot(fig)
-            
+
+            # Download
+            st.download_button("📥 Download Predictions", prediction_df.to_csv(index=False), "seizure_predictions.csv")
+
     except Exception as e:
-        st.error(f"⚠️ Error processing EEG file: {e}")
+        st.error(f"⚠️ Error reading the file: {e}")
 
-# ---------------------------
-# SECTION 2: CHATBOT INTEGRATION BASED ON UPLOADED REPORTS
-# ---------------------------
-
-st.markdown("---")
-st.sidebar.header("🤖 Chat with AI Assistant (Based on Your Reports)")
-
-# Load a Hugging Face transformer QA pipeline
-@st.cache_resource
-def load_qa_pipeline():
-    return pipeline("question-answering", model="distilbert-base-uncased-distilled-squad")
-
-qa_pipeline = load_qa_pipeline()
-
-# Function to extract text from PDF files
-def extract_text_from_pdf(pdf_file):
-    try:
-        reader = PyPDF2.PdfReader(pdf_file)
-        text = ""
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-        return text
-    except Exception as e:
-        return ""
-
-# Create a session variable to hold the combined report text
-if 'report_text' not in st.session_state:
-    st.session_state.report_text = ""
-
-st.sidebar.markdown("### 📄 Upload Your Reports")
-uploaded_reports = st.sidebar.file_uploader(
-    "Upload report files (PDF or TXT)", type=["pdf", "txt"], accept_multiple_files=True, key="reports")
-
-if uploaded_reports:
-    combined_text = ""
-    for report in uploaded_reports:
-        if report.type == "application/pdf":
-            # Extract text from PDF
-            combined_text += extract_text_from_pdf(report) + "\n"
-        else:  # Assume text file (TXT)
-            text = report.read().decode("utf-8")
-            combined_text += text + "\n"
-    st.session_state.report_text = combined_text
-    st.sidebar.success("Reports uploaded and processed!")
-
-st.sidebar.markdown("### ❓ Ask a Question")
-user_query = st.sidebar.text_input("Ask a question based on the reports:")
-
-if user_query:
-    if st.session_state.report_text:
-        try:
-            result = qa_pipeline(question=user_query, context=st.session_state.report_text)
-            st.sidebar.write("🤖 **Answer:**", result["answer"])
-        except Exception as e:
-            st.sidebar.error(f"Error getting answer: {e}")
-    else:
-        st.sidebar.error("Please upload reports to enable question answering.")
-
-# ---------------------------
-# SECTION 3: APP FOOTER
-# ---------------------------
-st.markdown("""<hr style="margin-top:50px;">
-    <p style="text-align:center; font-size:14px;">
-        Built with ❤️ by <b>Kashish Seth</b> | Powered by LSTM, Transformers & Streamlit
+# Footer
+st.markdown(f"""<hr style="margin-top:50px;">
+    <p style="text-align:center; font-size:14px; color: {font_color};">
+        Built with ❤️ by <b>Kashish Seth</b> | Powered by LSTM & Streamlit
     </p>
 """, unsafe_allow_html=True)
