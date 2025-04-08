@@ -37,7 +37,7 @@ else:
 # Load model
 @st.cache_resource
 def load_trained_model():
-    return load_model("seizure_model.h5")  # Ensure this file exists
+    return load_model("seizure_model (1).h5")  # Ensure this file exists
 
 model = load_trained_model()
 
