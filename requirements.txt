@@ -5,3 +5,9 @@ numpy
 matplotlib
 transformers
 PyPDF2
+streamlit
+pandas
+numpy
+matplotlib
+tensorflow
+reportlab
