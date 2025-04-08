@@ -9,5 +9,7 @@ streamlit
 pandas
 numpy
 matplotlib
+fpdf
+
 tensorflow
 reportlab
