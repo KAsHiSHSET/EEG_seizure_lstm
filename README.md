@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/b69f082b-36d5-4b18-9b3a-76d5cae184b5)
+
 🧠 What is EEG?
         EEG (Electroencephalography) is a method used to record the brain’s electrical activity over a period of time. It is one of the most widely used techniques in neuroscience and medical diagnostics.
 
