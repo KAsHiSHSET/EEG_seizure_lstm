@@ -62,17 +62,17 @@ EEG is essential for diagnosing and monitoring:
 ## 🚀 How to Run
 
 1. **Clone the repository**:
-   git clone https://github.com/yourusername/eeg-seizure-detection.git
-   cd eeg-seizure-detection
+  - git clone https://github.com/yourusername/eeg-seizure-detection.git
+  - cd eeg-seizure-detection
 
 
 2. **Install dependencies**:
 
-pip install -r requirements.txt
+  - pip install -r requirements.txt
 
 
 3. **Run the app**:
-streamlit run app.py
+  -streamlit run app.py
 
 ### 📂 Sample Output
 Prediction screen: Shows seizure status and confidence score.
