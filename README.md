@@ -62,7 +62,7 @@ EEG is essential for diagnosing and monitoring:
 ## 🚀 How to Run
 
 1. **Clone the repository**:
-  - git clone https://github.com/yourusername/eeg-seizure-detection.git
+  - git clone https://github.com/yourusername/eeg-seizure-detection.git](https://github.com/KAsHiSHSET/EEG_seizure_lstm.git)
   - cd eeg-seizure-detection
 
 
